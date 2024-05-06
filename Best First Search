@@ -1,0 +1,36 @@
+best_first_search(Start, Goal, Solution) :-
+    iterative_deepening([[Start]], Goal, ReversedSolution),
+    reverse(ReversedSolution, Solution).
+
+iterative_deepening([[Goal|Path]|_], Goal, [Goal|Path]).
+
+iterative_deepening([[Current|Path]|Paths], Goal, Solution) :-
+    length(Path, Depth),
+    Depth < 10, % Limiting the search depth
+    findall([Next, Current|Path],
+            (move(Current, Next), \+ member(Next, [Current|Path])),
+            Successors),
+    append(Paths, Successors, NewPaths),
+    sort_paths(NewPaths, SortedPaths),
+    iterative_deepening(SortedPaths, Goal, Solution).
+
+% Termination condition if depth limit exceeded
+iterative_deepening(_, _, _) :- !, fail.
+
+move(a, b).
+move(b, c).
+move(c, d).
+move(d, e).
+
+sort_paths(Paths, SortedPaths) :-
+    predsort(compare_paths, Paths, SortedPaths).
+
+compare_paths(Order, [Goal1|], [Goal2|]) :-
+    heuristic(Goal1, H1),
+    heuristic(Goal2, H2),
+    compare(Order, H1, H2).
+             heuristic(a, 4).
+heuristic(b, 3).
+heuristic(c, 2).
+heuristic(d, 1).
+heuristic(e, 0).
