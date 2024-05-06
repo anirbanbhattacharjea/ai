@@ -1,0 +1,37 @@
+% Define a simple game tree with states and their corresponding utility values
+% In this example, the game tree has a depth of 3 levels.
+
+% Utility values for terminal states
+utility(a, 3).
+utility(b, 5).
+utility(c, 2).
+utility(d, 8).
+utility(e, 6).
+utility(f, 7).
+
+% Define the successor states for each state
+successor(a, [b, c]).
+successor(b, [d, e]).
+successor(c, [f]).
+
+% Min-Max search algorithm
+minimax(State, Value) :-
+    max_value(State, Value).
+
+% Base case: if the state is a terminal state, return its utility value
+max_value(State, Value) :-
+    utility(State, Value).
+% Recursive case: find the maximum value among the successor states
+max_value(State, Value) :-
+    successor(State, Successors),
+    findall(V, (member(S, Successors), min_value(S, V)), Values),
+    max_list(Values, Value).
+
+% Base case: if the state is a terminal state, return its utility value
+min_value(State, Value) :-
+    utility(State, Value).
+% Recursive case: find the minimum value among the successor states
+min_value(State, Value) :-
+    successor(State, Successors),
+    findall(V, (member(S, Successors), max_value(S, V)), Values),
+    min_list(Values, Value).
