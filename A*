@@ -1,0 +1,41 @@
+
+% Define a simple example problem with a state space, transition function, and heuristic function
+% In this example, the state space consists of three states: a, b, and c.
+% The goal is to reach state c.
+
+% Initial state
+initial_state(a).
+
+% Goal state
+goal_state(c).
+
+% Define transition function
+transition(a, b, 3). % Transition from a to b with cost 3
+transition(b, c, 2). % Transition from b to c with cost 2
+
+% Define heuristic function
+heuristic(a, 3). % Heuristic value for state a
+heuristic(b, 2). % Heuristic value for state b
+heuristic(c, 0). % Heuristic value for state c
+
+% A* search algorithm
+astar_search(Path) :-
+    initial_state(Initial),
+    astar_search([[[Initial], 0, 0]], Path).
+
+% Base case: if the current state is the goal state, return the path
+astar_search([[State|Path], _, _ | _], [State|Path]) :-
+    goal_state(State).
+
+% Recursive case: expand the current path and continue the search
+astar_search([[State|Path], G, _ | Rest], FinalPath) :-
+    findall([[NextState, State|Path], G1, H1 | [NextState|Path]],
+            (transition(State, NextState, Cost),
+             heuristic(NextState, H),
+             G1 is G + Cost,
+             H1 is G1 + H,
+             \+ member(NextState, Path)),  % Ensure not revisiting states
+            NewPaths),
+    append(Rest, NewPaths, AllPaths),
+    sort(4, @>=, AllPaths, SortedPaths),  % Sort paths based on f value (cost + heuristic)
+    astar_search(SortedPaths, FinalPath).
