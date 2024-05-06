@@ -1,0 +1,53 @@
+% Define the initial state and goal state of the problem
+initial_state([0, 0]).
+goal_state([_, 2]).
+
+% Define possible operations on the jugs
+% Fill Jug1
+move([_, Jug2], [5, Jug2]) :-
+    !.
+% Fill Jug2
+move([Jug1, _], [Jug1, 3]) :-
+    !.
+% Empty Jug1
+move([_, Jug2], [0, Jug2]) :-
+    !.
+% Empty Jug2
+move([Jug1, _], [Jug1, 0]) :-
+    !.
+% Pour Jug1 into Jug2
+move([Jug1, Jug2], [NewJug1, NewJug2]) :-
+    Total is Jug1 + Jug2,
+    NewJug2 is min(3, Total),
+    NewJug1 is Total - NewJug2,
+    !.
+% Pour Jug2 into Jug1
+move([Jug1, Jug2], [NewJug1, NewJug2]) :-
+    Total is Jug1 + Jug2,
+    NewJug1 is min(5, Total),
+    NewJug2 is Total - NewJug1,
+    !.
+
+% Define the predicate to solve the problem
+solve(State, _, []) :-
+    goal_state(State),
+    !.
+solve(State, Visited, [Move|Moves]) :-
+    move(State, NextState),
+    \+ member(NextState, Visited),
+    solve(NextState, [NextState|Visited], Moves),
+    Move = NextState-State.
+
+% Helper predicate to print the solution path
+print_solution([]) :-
+    nl.
+print_solution([Move|Moves]) :-
+    format("~w -> ", Move),
+    print_solution(Moves).
+
+% Predicate to start solving the problem
+start :-
+    initial_state(InitialState),
+    solve(InitialState, [InitialState], Moves),
+    write('Solution Path: '),
+    print_solution(Moves).
