@@ -1,0 +1,40 @@
+:- use_module(library(random)).
+
+% A simple function to simulate happiness levels
+happiness(Time, Happiness) :-
+    Happiness is -((Time - 12) ** 2) + 50.
+
+% Hill Climbing algorithm to find the time with the highest happiness
+hill_climbing(BestTime, BestHappiness) :-
+    random_uniform(0, 24, CurrentTime), % Starting at a random time
+    happiness(CurrentTime, CurrentHappiness),
+    climb(CurrentTime, CurrentHappiness, BestTime, BestHappiness).
+
+% Start climbing
+climb(CurrentTime, CurrentHappiness, BestTime, BestHappiness) :-
+    random_uniform(-1, 1, Step), % Generate a random step
+    NewTime is CurrentTime + Step, % Try a new time close to the current time
+    happiness(NewTime, NewHappiness),
+    (   NewHappiness > CurrentHappiness ->
+        climb(NewTime, NewHappiness, BestTime, BestHappiness) % If the new time is happier, continue climbing
+    ;   BestTime = CurrentTime, % If not happier, we've found the happiest time
+        BestHappiness = CurrentHappiness
+    ).
+
+% Helper predicate for generating random numbers between Min and Max
+random_uniform(Min, Max, Value) :-
+    random(RawValue),
+    Value is Min + (Max - Min) * RawValue.
+
+% Running the algorithm and printing the final output
+run_hill_climbing :-
+    hill_climbing(BestTime, BestHappiness),
+    format('The happiest time is around ~2f hours, with a happiness level of ~2f', [BestTime, BestHappiness]), nl.
+
+% Query to run the algorithm and print the final output
+?- run_hill_climbing.
+
+
+NORMAL OUTPUT
+?- hill_climbing(a, Path).
+Path = [c, b, a].
